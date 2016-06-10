@@ -1,4 +1,4 @@
-package com.MysqlLoadTest.Web;
+package com.MysqlLoadTest.ObjectLibrary;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;

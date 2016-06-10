@@ -21,13 +21,14 @@ public class SocketSender {
 	public static final String IP_ADDR = "localhost";//服务器地址 
 	public static final int PORT = 12345;//服务器端口号  
 	
-	public static void sendFromSocket(TestInfoClient testInfoClient){
+	public static int sendFromSocket(TestInfoClient testInfoClient){
    	
     	
         log.info("Start client");  
         //System.out.println("当接收到服务器端字符为 \"OK\" 的时候, 客户端将终止\n"); 
         //while (true) {  
         	Socket socket = null;
+        	int testId = 0;
         	try {
         		//创建一个流套接字并将其连接到指定主机上的指定端口号
 	        	socket = new Socket(IP_ADDR, PORT);  
@@ -40,8 +41,8 @@ public class SocketSender {
 	            //out.writeUTF(str);  
 	              
 	            log.info("receiving");
-	            int returnValue = (int) input.readObject();
-	            log.info("Received test ID: " + returnValue);
+	            testId = (int) input.readObject();
+	            log.info("Received test ID: " + testId);
 	            
 	            out.close();
 	            input.close();
@@ -58,6 +59,7 @@ public class SocketSender {
         		}
         	}
         //}  
+        	return testId;
 	}
 	
     public static void main(String[] args) {  

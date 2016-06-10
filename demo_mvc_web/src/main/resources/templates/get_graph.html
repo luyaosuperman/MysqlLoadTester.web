@@ -1,0 +1,68 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+//<![CDATA[
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(loadData);
+
+      /*var rawData = [
+                     ['Year', 'Sales', 'Expenses'],
+                     [2004,  1000,      400],
+                     [2005,  1170,      460],
+                     [2006,  660,       1120],
+                     [2007,  1030,      540]
+                   ]*/
+      
+      
+      
+      function drawChart(rawData) {
+
+    	var data = google.visualization.arrayToDataTable(rawData);
+        var options = {
+          title: 'Test Result',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(data, options);
+      }
+      
+      function loadData() {
+    	  var xhttp = new XMLHttpRequest();
+    	  var queryDict = {}
+    	  var rawData = null;
+    	  location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]})
+    	  var testId = queryDict["testId"];
+    	  xhttp.onreadystatechange = function() {
+    	    if (xhttp.readyState == 4 && xhttp.status == 200) {
+    	   	 var jsonStr= xhttp.responseText;
+    	     //document.getElementById("demo").innerHTML=jsonStr;
+    	     var obj = JSON.parse(jsonStr);
+    	     
+    	     rawData = [obj["TestResult"]["columns"]];
+    	     //rawData=rawData.concat(obj["TestResult"]["columns"]);
+    	     rawData = rawData.concat(obj["TestResult"]["dataPoint"]);
+    	     
+    	     
+    	     drawChart(rawData);
+    	     
+    	    }
+    	  };
+    	  xhttp.open("GET", "/get_data?testId=" + testId, true);
+    	  xhttp.send();
+    	}
+      
+//]]>
+ </script>
+</head>
+  <body>
+  	<p th:text="${testId}"></p>
+  	<!-- <button type="button" onclick="loadData()">loadTestData</button>   -->
+  	<!-- <div id="demo"><h2>Let AJAX change this text</h2></div>   -->
+    <div id="curve_chart" style="height:500"></div>
+  </body>
+</html>

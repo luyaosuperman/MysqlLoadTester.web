@@ -42,10 +42,20 @@ public class MVCController  extends WebMvcConfigurerAdapter {
     		return "landing";
     	}
     	
-    	SocketSender.sendFromSocket(testInfoClient);
+    	int testId = SocketSender.sendFromSocket(testInfoClient);
+    	//int testId = 20;
     	
-    	return "forward:/get_progress";
+    	//return "forward:/get_progress";
+    	return "redirect:/get_graph?testId="+testId;
     	
+    }
+    
+    @RequestMapping(value="/get_graph", method=RequestMethod.GET)
+    public String getGraph(@RequestParam(value="testId", required=true) int testId, Model model){
+    	
+    	//System.out.println("testId: " + testId);
+    	model.addAttribute("testId",testId);
+    	return "get_graph";
     }
     
 }

@@ -1,5 +1,6 @@
 package com.MysqlLoadTest.Web;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.validation.Valid;
@@ -51,11 +52,25 @@ public class MVCController  extends WebMvcConfigurerAdapter {
     }
     
     @RequestMapping(value="/get_graph", method=RequestMethod.GET)
-    public String getGraph(@RequestParam(value="testId", required=true) int testId, Model model){
+    public String getGraph(@RequestParam(value="testId", required=true) int[] testIdArray, Model model){
     	
-    	//System.out.println("testId: " + testId);
-    	model.addAttribute("testId",testId);
+    	for (int testId: testIdArray){
+    		System.out.println("testId: " + testId);
+    	}
+    	//model.addAttribute("testId",testId);
     	return "get_graph";
+    }
+    
+    @RequestMapping(value="/existing_tests", method=RequestMethod.GET)
+    public String getExistingTests(Model model){
+    	ArrayList<Integer> testIdList = new ArrayList<Integer>();
+    	testIdList.add(1);
+    	testIdList.add(2);
+    	testIdList.add(3);
+    	
+    	model.addAttribute("testIdList", testIdList);
+    	
+    	return "existing_tests";
     }
     
 }

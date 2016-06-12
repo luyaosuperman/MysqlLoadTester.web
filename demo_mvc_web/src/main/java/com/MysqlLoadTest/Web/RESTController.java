@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.MysqlLoadTest.ObjectLibrary.TestList;
 import com.MysqlLoadTest.ObjectLibrary.TestProgress;
 import com.MysqlLoadTest.ObjectLibrary.TestResult;
 import com.MysqlLoadTest.Utilities.ConnectionManager;
@@ -52,10 +54,72 @@ public class RESTController {
     	
     }
     
-    @RequestMapping(value="/get_data",method=RequestMethod.GET)
-    public TestResult getData(@RequestParam(value="testId", required=true) int testId){
+    @RequestMapping(value="/get_testList",method=RequestMethod.GET)
+    public TestList getTestList(){
+    	Connection connect = ConnectionManager.getConnection("testReport");
+    	TestList testList = new TestList();
     	
-    	System.out.println("/get_data invoked, with testId: " + testId);
+		PreparedStatement preparedStatement = null;
+		ResultSet rs;
+		
+		try {
+			preparedStatement = connect.prepareStatement("select "+
+														"info.id, "+
+														"info.timestamp, "+
+														"info.threads, "+
+														"info.runCount, "+
+														"info.rowCount, "+
+														"info.`comment`, "+
+														"info.tableName, "+
+														"info.createTableSql, "+
+														"info.insertPct, "+
+														"info.selectPct, "+
+														"info.updatePct, "+
+														"info.initDataAmount "+
+														"from testinfo info; ");
+			String[] properties = {
+					"id",
+					"timestamp",
+					"threads",
+					"runCount",
+					"rowCount",
+					"comment",
+					"tableName",
+					//"createTableSql",
+					"insertPct",
+					"selectPct",
+					"updatePct",
+					"initDataAmount"};
+			testList.properties = properties;  	
+			
+			rs = preparedStatement.executeQuery();
+			while (rs.next()){
+				
+				HashMap<String,String> testDetailList = new HashMap<String,String>();
+				for(String property: properties){
+					String value = rs.getString(property);
+					testDetailList.put(property, value);
+				}
+
+				testList.testList.add(testDetailList);
+			}	
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+		return testList;
+    	
+    }
+    
+    @RequestMapping(value="/get_data",method=RequestMethod.GET)
+    public TestResult getData(@RequestParam(value="testId", required=true) int[] testIdArray){
+    	
+    	//System.out.println("/get_data invoked, with testId: " + testId);
+    	for (int testId: testIdArray){
+    		System.out.println("testId: " + testId);
+    	}
+    	int testId = testIdArray[0];
     	TestResult testResult = new TestResult();
 
     	Connection connect = ConnectionManager.getConnection("testReport");
@@ -99,21 +163,11 @@ public class RESTController {
 					String column = columns[i];
 					pointInfo[i]=rs.getLong(column);
 				}
-				testResult.dataPoint.add(pointInfo);
-				
-			}
-			
-
-			
+				testResult.dataPoint.add(pointInfo);		
+			}	
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    		
-    	
-
-    	
-    	
     	return testResult;
     }
 
